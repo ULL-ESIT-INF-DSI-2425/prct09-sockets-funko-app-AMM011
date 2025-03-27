@@ -15,6 +15,9 @@ export interface RequestType {
     funko?: Funko;
 }
 
+/**
+ * Estrucutra de la respuesta que envía el servidor al cliente.
+ */
 export interface ResponseType {
     type: OperationType;
     success: boolean;
