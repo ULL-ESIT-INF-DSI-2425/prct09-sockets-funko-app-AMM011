@@ -1,4 +1,4 @@
-import { Funko } from "./models/Funko.js";
+import { Funko } from "../models/Funko.js";
 
 /**
  * Tipo de operación que puede realizar el cliente.
@@ -13,4 +13,11 @@ export interface RequestType {
     user: string;
     id?: number;
     funko?: Funko;
+}
+
+export interface ResponseType {
+    type: OperationType;
+    success: boolean;
+    message: string;
+    funkoPops?: Funko[]; // usado para 'list' o 'read'
 }
