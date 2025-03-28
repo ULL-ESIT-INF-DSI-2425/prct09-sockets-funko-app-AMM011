@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import chalk from "chalk";
-import * as net from 'net';
+import * as net from "net";
 import { hideBin } from "yargs/helpers";
 import { UserFunkoManager } from "../storage/UserFunkoManager.js";
 import { Funko } from "../models/Funko.js";
@@ -13,13 +13,13 @@ import { argv } from "process";
  * Muestra la respuesta del servidor con colores.
  */
 function handleResponse(socket: net.Socket) {
-  let dataBuffer = '';
+  let dataBuffer = "";
 
-  socket.on('data', (chunk) => {
+  socket.on("data", (chunk) => {
     dataBuffer += chunk.toString();
   });
 
-  socket.on('end', () => {
+  socket.on("end", () => {
     try {
       const response: ResponseType = JSON.parse(dataBuffer);
       if (response.success) {
@@ -32,7 +32,7 @@ function handleResponse(socket: net.Socket) {
             console.log(`  Género: ${funko.genre}`);
             console.log(`  Franquicia: ${funko.franchise}`);
             console.log(`  Nº en franquicia: ${funko.number}`);
-            console.log(`  Exclusivo: ${funko.exclusive ? 'Sí' : 'No'}`);
+            console.log(`  Exclusivo: ${funko.exclusive ? "Sí" : "No"}`);
             console.log(`  Características: ${funko.specialFeatures}`);
             console.log(`  Valor de mercado: ${funko.marketValue}€`);
           });
@@ -41,12 +41,17 @@ function handleResponse(socket: net.Socket) {
         console.log(chalk.red(response.message));
       }
     } catch (err) {
-      console.log(chalk.red('❌ Error al interpretar la respuesta del servidor.'));
+      console.log(
+        chalk.red("❌ Error al interpretar la respuesta del servidor."),
+      );
     }
   });
 
-  socket.on('error', (err) => {
-    console.log(chalk.red('❌ Error de conexión con el servidor:'), err.message);
+  socket.on("error", (err) => {
+    console.log(
+      chalk.red("❌ Error de conexión con el servidor:"),
+      err.message,
+    );
   });
 }
 
@@ -59,8 +64,16 @@ yargs(hideBin(process.argv))
       id: { type: "number", demandOption: true },
       name: { type: "string", demandOption: true },
       desc: { type: "string", demandOption: true },
-      type: { type: "string", choices: Object.values(FunkoType), demandOption: true },
-      genre: { type: "string", choices: Object.values(FunkoGenre), demandOption: true },
+      type: {
+        type: "string",
+        choices: Object.values(FunkoType),
+        demandOption: true,
+      },
+      genre: {
+        type: "string",
+        choices: Object.values(FunkoGenre),
+        demandOption: true,
+      },
       franchise: { type: "string", demandOption: true },
       number: { type: "number", demandOption: true },
       exclusive: { type: "boolean", default: false },
@@ -82,45 +95,45 @@ yargs(hideBin(process.argv))
       );
 
       const request: RequestType = {
-        type: 'add',
+        type: "add",
         user: argv.user,
         funko,
       };
 
       const socket = net.connect({ port: 60300 });
 
-      socket.write(JSON.stringify(request) + '\n');
+      socket.write(JSON.stringify(request) + "\n");
 
       handleResponse(socket);
-    }
+    },
   )
   .command(
     "update",
     "Modifica un Funko existente",
     {
-        user: {
-            type: "string",
-            demandOption: true,
-            description: "Nombre de usuario",
-        },
-        id: { type: "number", demandOption: true },
-        name: { type: "string", demandOption: true },
-        desc: { type: "string", demandOption: true },
-        type: {
-            type: "string",
-            choices: Object.values(FunkoType),
-            demandOption: true,
-        },
-        genre: {
-            type: "string",
-            choices: Object.values(FunkoGenre),
-            demandOption: true,
-          },
-        franchise: { type: "string", demandOption: true },
-        number: { type: "number", demandOption: true },
-        exclusive: { type: "boolean", default: false },
-        features: { type: "string", demandOption: true },
-        value: { type: "number", demandOption: true },
+      user: {
+        type: "string",
+        demandOption: true,
+        description: "Nombre de usuario",
+      },
+      id: { type: "number", demandOption: true },
+      name: { type: "string", demandOption: true },
+      desc: { type: "string", demandOption: true },
+      type: {
+        type: "string",
+        choices: Object.values(FunkoType),
+        demandOption: true,
+      },
+      genre: {
+        type: "string",
+        choices: Object.values(FunkoGenre),
+        demandOption: true,
+      },
+      franchise: { type: "string", demandOption: true },
+      number: { type: "number", demandOption: true },
+      exclusive: { type: "boolean", default: false },
+      features: { type: "string", demandOption: true },
+      value: { type: "number", demandOption: true },
     },
     (argv) => {
       const funko = new Funko(
@@ -137,15 +150,15 @@ yargs(hideBin(process.argv))
       );
 
       const request: RequestType = {
-        type: 'update',
+        type: "update",
         user: argv.user,
         funko,
       };
 
       const socket = net.connect({ port: 60300 });
-      socket.write(JSON.stringify(request) + '\n');
+      socket.write(JSON.stringify(request) + "\n");
       handleResponse(socket);
-    }
+    },
   )
 
   .command(
@@ -155,24 +168,24 @@ yargs(hideBin(process.argv))
       user: {
         type: "string",
         demandOption: true,
-        description: "Nombre de usuario"
+        description: "Nombre de usuario",
       },
       id: {
         type: "number",
-        demandOption: true
-      }
+        demandOption: true,
+      },
     },
     (argv) => {
       const request: RequestType = {
-        type: 'update',
+        type: "update",
         user: argv.user,
         id: argv.id,
       };
 
       const socket = net.connect({ port: 60300 });
-      socket.write(JSON.stringify(request) + '\n');
+      socket.write(JSON.stringify(request) + "\n");
       handleResponse(socket);
-    }
+    },
   )
 
   .command(
@@ -182,11 +195,11 @@ yargs(hideBin(process.argv))
       user: {
         type: "string",
         demandOption: true,
-        description: "Nombre de usuario"
+        description: "Nombre de usuario",
       },
       id: {
         type: "number",
-        demandOption: true
+        demandOption: true,
       },
     },
     (argv) => {
@@ -198,10 +211,10 @@ yargs(hideBin(process.argv))
 
       const socket = net.connect({ port: 60300 });
 
-      socket.write(JSON.stringify(request) + '\n');
+      socket.write(JSON.stringify(request) + "\n");
 
       handleResponse(socket);
-    }
+    },
   )
 
   .command(
@@ -210,7 +223,7 @@ yargs(hideBin(process.argv))
     {
       user: {
         type: "string",
-        demandOption: true
+        demandOption: true,
       },
     },
 
@@ -221,9 +234,9 @@ yargs(hideBin(process.argv))
       };
 
       const socket = net.connect({ port: 60300 });
-      socket.write(JSON.stringify(request) + '\n');
+      socket.write(JSON.stringify(request) + "\n");
       handleResponse(socket);
-    }
+    },
   )
 
   .help()

@@ -1,18 +1,18 @@
-import * as net from 'net';
-import { Funko } from '../models/Funko.js';
-import { UserFunkoManager } from '../storage/UserFunkoManager.js';
-import { RequestType, ResponseType } from '../types/types.js';
+import * as net from "net";
+import { Funko } from "../models/Funko.js";
+import { UserFunkoManager } from "../storage/UserFunkoManager.js";
+import { RequestType, ResponseType } from "../types/types.js";
 
 const server = net.createServer((connection) => {
-  console.log('🟢 Cliente conectado');
+  console.log("🟢 Cliente conectado");
 
-  let requestData = '';
+  let requestData = "";
 
-  connection.on('data', (chunk) => {
+  connection.on("data", (chunk) => {
     requestData += chunk.toString();
   });
 
-  connection.on('end', async () => {
+  connection.on("end", async () => {
     try {
       const request: RequestType = JSON.parse(requestData);
       const manager = new UserFunkoManager(request.user);
@@ -21,105 +21,126 @@ const server = net.createServer((connection) => {
       let response: ResponseType;
 
       switch (request.type) {
-        case 'add':
+        case "add":
           if (request.funko) {
             const added = await manager.add(request.funko);
             response = {
-              type: 'add',
+              type: "add",
               success: added,
               message: added
                 ? `✅ Funko añadido a la colección de ${request.user}.`
                 : `❌ Ya existe un Funko con ID ${request.funko.id}.`,
             };
           } else {
-            response = { type: 'add', success: false, message: '❌ Falta el Funko a añadir.' };
+            response = {
+              type: "add",
+              success: false,
+              message: "❌ Falta el Funko a añadir.",
+            };
           }
           break;
 
-        case 'update':
+        case "update":
           if (request.funko) {
             const updated = await manager.update(request.funko);
             response = {
-              type: 'update',
+              type: "update",
               success: updated,
               message: updated
                 ? `✅ Funko actualizado correctamente.`
                 : `❌ No se encontró el Funko con ID ${request.funko.id}.`,
             };
           } else {
-            response = { type: 'update', success: false, message: '❌ Falta el Funko a modificar.' };
+            response = {
+              type: "update",
+              success: false,
+              message: "❌ Falta el Funko a modificar.",
+            };
           }
           break;
 
-        case 'remove':
+        case "remove":
           if (request.id !== undefined) {
             const removed = await manager.remove(request.id);
             response = {
-              type: 'remove',
+              type: "remove",
               success: removed,
               message: removed
                 ? `🗑️ Funko eliminado correctamente.`
                 : `❌ No se encontró el Funko con ID ${request.id}.`,
             };
           } else {
-            response = { type: 'remove', success: false, message: '❌ Falta el ID del Funko a eliminar.' };
+            response = {
+              type: "remove",
+              success: false,
+              message: "❌ Falta el ID del Funko a eliminar.",
+            };
           }
           break;
 
-        case 'read':
+        case "read":
           if (request.id !== undefined) {
             const funko = manager.get(request.id);
             response = funko
               ? {
-                  type: 'read',
+                  type: "read",
                   success: true,
                   message: `✅ Funko con ID ${request.id} encontrado.`,
                   funkoPops: [funko],
                 }
               : {
-                  type: 'read',
+                  type: "read",
                   success: false,
                   message: `❌ No se encontró el Funko con ID ${request.id}.`,
                 };
           } else {
-            response = { type: 'read', success: false, message: '❌ Falta el ID del Funko a leer.' };
+            response = {
+              type: "read",
+              success: false,
+              message: "❌ Falta el ID del Funko a leer.",
+            };
           }
           break;
 
-        case 'list':
+        case "list":
           const funkos = manager.list();
           response = {
-            type: 'list',
+            type: "list",
             success: true,
-            message: funkos.length > 0
-              ? `✅ Lista de Funkos de ${request.user}:`
-              : `⚠️ No hay Funkos en la colección de ${request.user}.`,
+            message:
+              funkos.length > 0
+                ? `✅ Lista de Funkos de ${request.user}:`
+                : `⚠️ No hay Funkos en la colección de ${request.user}.`,
             funkoPops: funkos,
           };
           break;
 
         default:
-          response = { type: request.type, success: false, message: '❌ Operación no válida.' };
+          response = {
+            type: request.type,
+            success: false,
+            message: "❌ Operación no válida.",
+          };
       }
 
       connection.write(JSON.stringify(response));
       connection.end();
     } catch (error) {
       const errorResponse: ResponseType = {
-        type: 'error',
+        type: "error",
         success: false,
-        message: '❌ Error procesando la petición: ' + (error as Error).message,
+        message: "❌ Error procesando la petición: " + (error as Error).message,
       };
       connection.write(JSON.stringify(errorResponse));
       connection.end();
     }
   });
 
-  connection.on('error', (err) => {
-    console.log('❌ Error en la conexión:', err.message);
+  connection.on("error", (err) => {
+    console.log("❌ Error en la conexión:", err.message);
   });
 });
 
 server.listen(60300, () => {
-  console.log('🟢 Servidor escuchando en el puerto 60300...');
+  console.log("🟢 Servidor escuchando en el puerto 60300...");
 });
