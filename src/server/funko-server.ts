@@ -1,4 +1,5 @@
 import * as net from "net";
+import * as readline from "readline";
 import { Funko } from "../models/Funko.js";
 import { UserFunkoManager } from "../storage/UserFunkoManager.js";
 import { RequestType, ResponseType } from "../types/types.js";
@@ -6,15 +7,11 @@ import { RequestType, ResponseType } from "../types/types.js";
 const server = net.createServer((connection) => {
   console.log("🟢 Cliente conectado");
 
-  let requestData = "";
+  const rl = readline.createInterface({ input: connection });
 
-  connection.on("data", (chunk) => {
-    requestData += chunk.toString();
-  });
-
-  connection.on("end", async () => {
+  rl.on("line", async (line) => {
     try {
-      const request: RequestType = JSON.parse(requestData);
+      const request: RequestType = JSON.parse(line);
       const manager = new UserFunkoManager(request.user);
       await manager.load();
 
@@ -123,7 +120,7 @@ const server = net.createServer((connection) => {
           };
       }
 
-      connection.write(JSON.stringify(response));
+      connection.write(JSON.stringify(response) + "\n");
       connection.end();
     } catch (error) {
       const errorResponse: ResponseType = {
@@ -131,7 +128,7 @@ const server = net.createServer((connection) => {
         success: false,
         message: "❌ Error procesando la petición: " + (error as Error).message,
       };
-      connection.write(JSON.stringify(errorResponse));
+      connection.write(JSON.stringify(errorResponse) + "\n");
       connection.end();
     }
   });

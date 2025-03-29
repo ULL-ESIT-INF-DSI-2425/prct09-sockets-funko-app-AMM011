@@ -4,3 +4,5 @@
 ````
 # Para ejecutar los test con coverage
 # npx vitest run --coverage
+
+npx prettier --write .
